@@ -3,7 +3,6 @@ import flask_restful
 from flask_restful import request
 from functools import wraps
 from apps.fileserver.models import *
-import datetime
 
 
 def authenticate(func):
@@ -11,6 +10,7 @@ def authenticate(func):
     def wrapper(*args, **kwargs):
         returnData = {
             'status': 0,
+            'code': 403,
             'message': ''
         }
         try:
@@ -24,7 +24,7 @@ def authenticate(func):
             header = request.headers
             token = header.get('Token')
             if not token:   # 请求没带Token拒绝执行
-                raise Exception('Privilege Validation Failed')
+                raise Exception('Privilege Validation Failed', 50009)
 
             user = check_token(token)   # 检查Token合法
             if user.id == 1:    # 超级管理员跳过接口权限检查
@@ -34,11 +34,14 @@ def authenticate(func):
             if endpoint in permission_list:  # 检查用户接口权限
                 return func(*args, **kwargs)
 
-            raise Exception('Users do not have access to this interface')
+            raise Exception('Users do not have access to this interface', 403)
 
         except Exception as error:
-            print(error)
-            returnData['message'] = str(error)
+            message = error.args[0]
+            if len(error.args) > 1:
+                code = error.args[1]
+                returnData['code'] = code
+            returnData['message'] = str(message)
             return returnData
     return wrapper
 
@@ -50,12 +53,12 @@ class Resource(flask_restful.Resource):  # Resource类继承,增加权限校验�
 def login_requiremed(username, password):   # 登录校验
     user = User.query.filter_by(username=username).first()
     if not user:
-        raise Exception('user not exists')
+        raise Exception('user not exists', 401)
 
     if user.check_password(password):
         return user
 
-    raise Exception('invalid password')
+    raise Exception('invalid password', 401)
 
 
 def check_token(token): # 检查Token是否合法

@@ -217,29 +217,31 @@ class login(Resource):
     def post(self):
         returnData = {
             'status': 0,
+            'code': 200,
             'message': ''
         }
-        try:
-            username = request.json.get('username')
-            password = request.json.get('password')
+        # try:
+        username = request.json.get('username')
+        password = request.json.get('password')
 
-            if not username or not password:
-                raise Exception('username or password empty')
+        if not username or not password:
+            raise Exception('username or password empty')
 
-            user = login_requiremed(username, password)
+        user = login_requiremed(username, password)
 
-            token = user.generate_auth_token()
-            token = str(token, encoding="utf8")
-            print(token)
+        token = user.generate_auth_token()
+        token = str(token, encoding="utf8")
+        print(token)
 
-            returnData['data'] = {
-                'UserId': user.id,
-                'Token': token
-            }
-            return returnData
+        returnData['status'] = 1
+        returnData['data'] = {
+            'UserId': user.id,
+            'Token': token
+        }
+        return returnData
 
-        except Exception as error:
-            print(error)
-            returnData['message'] = str(error)
-            return returnData
+        # except Exception as error:
+        #     print(error)
+        #     returnData['message'] = str(error)
+        #     return returnData
 

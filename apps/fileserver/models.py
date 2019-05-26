@@ -41,16 +41,16 @@ class User(db.Model):
         try:
             data = s.loads(token)
         except SignatureExpired:
-            raise Exception('token expired')
+            raise Exception('token expired', 50014)
             # return None, message  # valid token, but expired
         except BadSignature:
-            raise Exception('invalid token')
+            raise Exception('invalid token', 50008)
             # return None, message  # invalid token
         user = User.query.get(data['id'])
         if user:
             return user
 
-        raise Exception('user not exists')
+        raise Exception('user not exists', 405)
 
     def to_json(self):
         return {
