@@ -1,0 +1,16 @@
+# 只需初始化一次
+# python manage.py db init
+
+# 将模型生成迁移文件，只要模型更改了，就需要执行一遍这个命令
+python manage.py db migrate
+
+# 将迁移文件真正的映射到数据库中。每次运行了`migrate`命令后，就记得要运行这个命令
+python manage.py db upgrade
+
+
+# 根据数据库表字段生成models.py文件
+
+sqlacodegen postgresql：/// some_local_db
+sqlacodegen mysql + oursql：// user：password @ localhost / dbname
+sqlacodegen sqlite：///database.db > /tmp/models.py
+
